@@ -15,7 +15,6 @@ class JSH(object):
 		self.section_delims = section_delims
 		self.ignore_case = ignore_case
 		readline.parse_and_bind('tab: complete')
-		readline.parse_and_bind('set editing-mode vi')
 		readline.parse_and_bind('"?": "\\C-v?\\t\\d"')
 		readline.parse_and_bind('" ": "\\t"')
 		readline.parse_and_bind('"\\r": "\\C-v\\n\\t\\d\\n"')
@@ -46,6 +45,8 @@ class JSH(object):
 						continue
 					if key is None or len(path) == 1 and key == self.section:
 						new_path = path
+					elif key == str and '?' in level[str]:
+						new_path = path + ['<{0}>'.format(level[str]['?'])]
 					elif key == str:
 						new_path = path + ['<...>']
 					else:

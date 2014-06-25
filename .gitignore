@@ -4,6 +4,6 @@
 deb_dist
 MANIFEST
 dist
-python-jsh-*.tar.gz
+jsh-*.tar.gz
 
 .*.sw*

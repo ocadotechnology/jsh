@@ -1,0 +1,9 @@
+*.pyc
+.GITVERSION
+
+deb_dist
+MANIFEST
+dist
+python-jsh-*.tar.gz
+
+.*.sw*

@@ -64,7 +64,10 @@ cli = jsh.JSH({
 				None: things.add,
 				'description': {
 					'?': 'Set description',
-					str: things.add
+					str: {
+						'?': 'Description',
+						None: things.add
+					}
 				}
 			}
 		}
@@ -90,7 +93,10 @@ cli = jsh.JSH({
 		'?': 'Delete stuff',
 		'thing': {
 			'?': 'Delete a thing',
-			str: things.delete,
+			str: {
+				'?': 'Thing to delete',
+				None: things.delete
+			},
 			'\t': things.keys
 		}
 	},

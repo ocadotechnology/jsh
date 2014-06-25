@@ -94,7 +94,7 @@ cli = jsh.JSH({
 				'?': 'Thing to delete',
 				None: things.delete
 			},
-			'\t': things.keys
+			'\t': things.complete
 		}
 	},
 	'quit': {

@@ -2,16 +2,18 @@
 
 import readline
 import shlex
+import sys
 
 class JSHError(Exception):
 	pass
 
 class JSH(object):
 	section = None
-	def __init__(self, layout, prompt='> ', section_delims=('(', ')')):
+	def __init__(self, layout, prompt='> ', section_delims=('(', ')'), ignore_case=False):
 		self.layout = layout
 		self.prompt = prompt
 		self.section_delims = section_delims
+		self.ignore_case = ignore_case
 		readline.parse_and_bind('tab: complete')
 		readline.parse_and_bind('set editing-mode vi')
 		readline.parse_and_bind('"?": "\\C-v?\\t\\d"')
@@ -21,6 +23,10 @@ class JSH(object):
 		readline.set_completer(self.completer)
 	def get_prompt(self):
 		return self.prompt.format(section='{0}{1}{2}'.format(self.section_delims[0], self.section, self.section_delims[1]) if self.section else '')
+	def read_and_execute(self):
+		command = self.get_input()
+		if command:
+			return self.run_command(command)
 	def get_input(self):
 		try:
 			command = raw_input(self.get_prompt()).strip()
@@ -39,7 +45,10 @@ class JSH(object):
 			try:
 				parts = shlex.split(readline.get_line_buffer().rstrip('?')[:readline.get_endidx()].lower())
 			except:
-				return
+				if state == 0:
+					return text + ' '
+				else:
+					return None
 
 			if not stext:
 				parts.append(None)
@@ -55,7 +64,11 @@ class JSH(object):
 					break
 				elif type(level) == dict and '\t' in level and str in level and (not parts or parts[0] is None):
 					try:
-						dynamic = dict((comp, '') for comp in level['\t'](self, *args))
+						possibilities = level['\t'](self, *args)
+						if isinstance(possibilities, dict):
+							dynamic = possibilities
+						else:
+							dynamic = dict((comp, '') for comp in possibilities)
 					except:
 						dynamic = {}
 					completions.update(dynamic)
@@ -82,10 +95,12 @@ class JSH(object):
 			else:
 				completions = dict((key, value) for key, value in completions.iteritems() if key not in [None, str, '\t', '?'] and key.startswith(stext))
 
-			if text.endswith(' \n') or text.endswith('\n') and len(completions) > 1:
+			if text == '\n' or text.endswith('\n') and (len(completions) > 1 or str in level):
 				return None
 			elif text.endswith('?'):
 				print
+				if str in level and type(level[str]) == dict and '?' in level[str] and '\t' not in level[str]:
+					completions['<{0}>'.format(level[str]['?'])] = ''
 				if completions:
 					just = max(map(len, completions.keys()))
 					print 'Available completions:'
@@ -96,7 +111,9 @@ class JSH(object):
 				print '{0}{1}'.format(self.get_prompt(), readline.get_line_buffer()),
 				return None
 			else:
-				comp_strings = sorted(completion + ' ' for completion in set(completions.keys()))
+				if str in level and '\t' not in level:
+					completions[text] = ''
+				comp_strings = [completion + ' ' for completion in set(completions.keys())]
 				if len(comp_strings) > state:
 					return sorted(comp_strings)[state]
 				else:
@@ -104,7 +121,7 @@ class JSH(object):
 		return complete
 	def run_command(self, command):
 		try:
-			parts = shlex.split(command.lower())
+			parts = shlex.split(command.lower() if self.ignore_case else command)
 		except ValueError as err:
 			raise JSHError('Parse error: {0}'.format(err.message.lower()))
 		parts.append(None)
@@ -144,4 +161,12 @@ class JSH(object):
 					))
 				else:
 					raise JSHError("Incomplete command '{0}'".format(' '.join(consumed)))
+
+def exit(whatever):
+	if type(whatever) == JSH:
+		sys.exit(0)
+	else:
+		def quit(cli):
+			sys.exit(whatever)
+		return quit
 

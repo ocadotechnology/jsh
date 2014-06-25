@@ -1,0 +1,110 @@
+#!/usr/bin/env python
+
+import jsh
+
+class Things(dict):
+	def complete(self, cli):
+		return self
+	def list(self, cli):
+		if self:
+			print 'Your things:'
+			for thing, desc in self.items():
+				print ' {0} ({1})'.format(thing, desc)
+		else:
+			print 'No things'
+	def show(self, cli, thing):
+		try:
+			print '{0}: {1}'.format(thing, self[thing])
+		except KeyError:
+			print 'No such thing {0}'.format(thing)
+	def add(self, cli, thing, desc='Undescribed'):
+		self[thing] = desc
+	def describe(self, cli, thing, desc='Undescribed'):
+		if thing in self:
+			self[thing] = desc
+		else:
+			print 'No such thing {0}'.format(thing)
+	def delete(self, cli, thing):
+		try:
+			del(self[thing])
+		except KeyError:
+			print 'No such thing {0}'.format(thing)
+
+things = Things()
+
+def cli_help(cli):
+	print 'Some help'
+
+cli = jsh.JSH({
+	'help': {
+		'?': 'Show help',
+		None: cli_help
+	},
+	'show': {
+		'?': 'Show stuff',
+		'things': {
+			'?': 'List things',
+			None: things.list
+		},
+		'thing': {
+			'?': 'Show specific thing',
+			'\t': things.complete,
+			str: {
+				'?': 'Thing to show',
+				None: things.show
+			}
+		}
+	},
+	'add': {
+		'?': 'Add stuff',
+		'thing': {
+			'?': 'Add a thing',
+			str: {
+				'?': 'Thing name',
+				None: things.add,
+				'description': {
+					'?': 'Set description',
+					str: things.add
+				}
+			}
+		}
+	},
+	'set': {
+		'?': 'Change stuff',
+		'thing': {
+			'?': 'Change a thing',
+			'\t': things.complete,
+			str: {
+				'?': 'Thing to change',
+				'description': {
+					'?': 'Change thing description',
+					str: {
+						'?': 'Description',
+						None: things.describe
+					}
+				}
+			}
+		}
+	},
+	'delete': {
+		'?': 'Delete stuff',
+		'thing': {
+			'?': 'Delete a thing',
+			str: things.delete,
+			'\t': things.keys
+		}
+	},
+	'quit': {
+		'?': 'Quit',
+		None: jsh.exit
+	}
+})
+
+while True:
+	try:
+		cli.read_and_execute()
+	except jsh.JSHError as err:
+		print err
+	except EOFError:
+		break
+

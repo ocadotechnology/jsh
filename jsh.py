@@ -16,7 +16,7 @@ class JSH(object):
 		readline.parse_and_bind('set editing-mode vi')
 		readline.parse_and_bind('"?": "\\C-v?\\t\\d"')
 		readline.parse_and_bind('" ": "\\t"')
-		readline.parse_and_bind('"\\r": "\\t\\n"')
+		readline.parse_and_bind('"\\r": "\\C-v\\n\\t\\d\\n"')
 		readline.set_completer_delims(' ')
 		readline.set_completer(self.completer)
 	def get_prompt(self):
@@ -34,11 +34,14 @@ class JSH(object):
 	@property
 	def completer(self):
 		def complete(text, state):
+			stext = text.rstrip('?\n')
+
 			try:
-				parts = shlex.split(readline.get_line_buffer()[:readline.get_endidx()].lower())
+				parts = shlex.split(readline.get_line_buffer().rstrip('?')[:readline.get_endidx()].lower())
 			except:
 				return
-			if not text:
+
+			if not stext:
 				parts.append(None)
 			else:
 				parts.pop()
@@ -74,12 +77,14 @@ class JSH(object):
 				else:
 					break
 
-			if text.rstrip('?') in completions:
-				completions = {text: completions[text]}
+			if stext in completions:
+				completions = {stext: completions[stext]}
 			else:
-				completions = dict((key, value) for key, value in completions.iteritems() if key not in [None, str, '\t', '?'] and key.startswith(text.rstrip('?')))
+				completions = dict((key, value) for key, value in completions.iteritems() if key not in [None, str, '\t', '?'] and key.startswith(stext))
 
-			if len(text) > 0 and text[-1] == '?':
+			if text.endswith(' \n') or text.endswith('\n') and len(completions) > 1:
+				return None
+			elif text.endswith('?'):
 				print
 				if completions:
 					just = max(map(len, completions.keys()))

@@ -194,3 +194,8 @@ def show_commands(cli):
 	for command in cli.commands():
 		print '  {0}'.format(' '.join(command))
 
+def set_section(section):
+	def set_section(cli):
+		cli.section = section
+	return set_section
+

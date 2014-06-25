@@ -20,7 +20,7 @@ class JSH(object):
 		readline.set_completer_delims(' ')
 		readline.set_completer(self.completer)
 	def get_prompt(self):
-		return self.prompt.format(section='{0}{1}{2}'.format(self.section_delims[0], cli.section, self.section_delims[1]) if cli.section else '')
+		return self.prompt.format(section='{0}{1}{2}'.format(self.section_delims[0], self.section, self.section_delims[1]) if self.section else '')
 	def get_input(self):
 		try:
 			command = raw_input(self.get_prompt()).strip()

@@ -104,8 +104,6 @@ cli = jsh.JSH({
 })
 
 
-print cli.commands()
-
 while True:
 	try:
 		cli.read_and_execute()

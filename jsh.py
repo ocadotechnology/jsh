@@ -37,6 +37,24 @@ class JSH(object):
 			print
 			return None
 		return command 
+	def commands(self):
+		def walk(level, path=[], paths=[]):
+			new_paths = []
+			if type(level) == dict:
+				for key in level.keys():
+					if key in ['\t', '?']:
+						continue
+					if key is None or len(path) == 1 and key == self.section:
+						new_path = path
+					elif key == str:
+						new_path = path + ['<...>']
+					else:
+						new_path = path + [key]
+					new_paths.extend(walk(level[key], new_path, paths))
+			else:
+				new_paths.append(path)
+			return paths + new_paths
+		return sorted(walk(self.layout))
 	@property
 	def completer(self):
 		def complete(text, state):
@@ -169,4 +187,9 @@ def exit(whatever):
 		def quit(cli):
 			sys.exit(whatever)
 		return quit
+
+def show_commands(cli):
+	print 'Available commands:'
+	for command in cli.commands():
+		print '  {0}'.format(' '.join(command))
 

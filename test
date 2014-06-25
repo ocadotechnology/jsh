@@ -32,13 +32,10 @@ class Things(dict):
 
 things = Things()
 
-def cli_help(cli):
-	print 'Some help'
-
 cli = jsh.JSH({
 	'help': {
 		'?': 'Show help',
-		None: cli_help
+		None: jsh.show_commands
 	},
 	'show': {
 		'?': 'Show stuff',
@@ -105,6 +102,9 @@ cli = jsh.JSH({
 		None: jsh.exit
 	}
 })
+
+
+print cli.commands()
 
 while True:
 	try:

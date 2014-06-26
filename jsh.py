@@ -46,7 +46,8 @@ class JSH(object):
 					if key is None or len(path) == 1 and key == self.section:
 						new_path = path
 					elif key == str and '?' in level[str]:
-						new_path = path + ['<{0}>'.format(level[str]['?'])]
+						compl = level[str]['?']
+						new_path = path + ['<{0}>'.format(compl if type(compl) == str else compl[0])]
 					elif key == str:
 						new_path = path + ['<...>']
 					else:
@@ -119,14 +120,20 @@ class JSH(object):
 			elif text.endswith('?'):
 				print
 				if str in level and type(level[str]) == dict and '?' in level[str] and '\t' not in level[str]:
-					completions['<{0}>'.format(level[str]['?'])] = ''
+					compl = level[str]['?']
+					if type(compl) == str:
+						completions['<{0}>'.format(compl)] = ''
+					else:
+						completions['<{0}>'.format(compl[0])] = compl[1]
+				if None in level:
+					completions['<[Enter]>'] = 'Execute this command'
 				if completions:
 					just = max(map(len, completions.keys()))
-					print 'Available completions:'
+					print 'Possible completions:'
 					for key in sorted(completions.keys()):
 						print '  {0}   {1}'.format(key.ljust(just), completions[key])
 				else:
-					print 'No completions available'
+					print 'No valid completions'
 				print '{0}{1}'.format(self.get_prompt(), readline.get_line_buffer()),
 				return None
 			else:

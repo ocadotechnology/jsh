@@ -47,7 +47,7 @@ cli = jsh.JSH({
 			'?': 'Show specific thing',
 			'\t': things.complete,
 			str: {
-				'?': 'Thing to show',
+				'?': ('thing', 'Thing to show'),
 				None: things.show
 			}
 		}
@@ -57,12 +57,12 @@ cli = jsh.JSH({
 		'thing': {
 			'?': 'Add a thing',
 			str: {
-				'?': 'Thing name',
+				'?': ('thing', 'Thing name'),
 				None: things.add,
 				'description': {
 					'?': 'Set description',
 					str: {
-						'?': 'Description',
+						'?': ('description', 'Description'),
 						None: things.add
 					}
 				}
@@ -75,11 +75,11 @@ cli = jsh.JSH({
 			'?': 'Change a thing',
 			'\t': things.complete,
 			str: {
-				'?': 'Thing to change',
+				'?': ('thing', 'Thing to change'),
 				'description': {
 					'?': 'Change thing description',
 					str: {
-						'?': 'Description',
+						'?': ('description', 'Description'),
 						None: things.describe
 					}
 				}
@@ -91,7 +91,7 @@ cli = jsh.JSH({
 		'thing': {
 			'?': 'Delete a thing',
 			str: {
-				'?': 'Thing to delete',
+				'?': ('thing', 'Thing to delete'),
 				None: things.delete
 			},
 			'\t': things.complete

@@ -136,7 +136,8 @@ class JSH(object):
 						print '  {0}   {1}'.format(key.ljust(just), completions[key])
 				else:
 					print 'No valid completions'
-				sys.stdout.write('{0}{1}'.format(self.get_prompt(), readline.get_line_buffer()))
+				print '{0}{1}'.format(self.get_prompt(), readline.get_line_buffer()),
+				sys.stdout.write('')
 				return None
 			else:
 				if str in level and '\t' not in level:

@@ -9,15 +9,17 @@ class JSHError(Exception):
 
 class JSH(object):
 	section = None
-	def __init__(self, layout, prompt='> ', section_delims=('(', ')'), ignore_case=False):
+	def __init__(self, layout, prompt='> ', section_delims=('(', ')'), ignore_case=False, complete_on_space=True):
 		self.layout = layout
 		self.prompt = prompt
 		self.section_delims = section_delims
 		self.ignore_case = ignore_case
+		readline.parse_and_bind('set bell-style none')
 		readline.parse_and_bind('tab: complete')
 		readline.parse_and_bind('"?": "\\C-v?\\t\\d"')
-		readline.parse_and_bind('" ": "\\t"')
-		readline.parse_and_bind('"\\r": "\\C-v\\n\\t\\d\\n"')
+		if complete_on_space:
+			readline.parse_and_bind('" ": "\\t"')
+			readline.parse_and_bind('"\\r": "\\C-v\\n\\t\\d\\n"')
 		readline.set_completer_delims(' ')
 		readline.set_completer(self.completer)
 	def get_prompt(self):

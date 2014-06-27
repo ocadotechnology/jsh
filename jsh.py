@@ -130,7 +130,7 @@ class JSH(object):
 				if completions:
 					just = max(map(len, completions.keys()))
 					print 'Possible completions:'
-					for key in sorted(completions.keys()):
+					for key in sorted(completions.keys(), key=lambda comp: '!!!' + comp if comp.startswith('<') else comp):
 						print '  {0}   {1}'.format(key.ljust(just), completions[key])
 				else:
 					print 'No valid completions'

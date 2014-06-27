@@ -127,7 +127,7 @@ class JSH(object):
 						completions['<{0}>'.format(compl)] = ''
 					else:
 						completions['<{0}>'.format(compl[0])] = compl[1]
-				if None in level:
+				if None in level and len(text) == 1:
 					completions['<[Enter]>'] = 'Execute this command'
 				if completions:
 					just = max(map(len, completions.keys()))

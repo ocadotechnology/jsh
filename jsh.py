@@ -117,7 +117,7 @@ class JSH(object):
 			else:
 				completions = dict((key, value) for key, value in completions.iteritems() if key not in [None, str, '\t', '?'] and key.startswith(stext))
 
-			if text == '\n' or text.endswith('\n') and (len(completions) > 1 or str in level):
+			if text == '\n' or text.endswith('\n') and len(completions) != 1:
 				return None
 			elif text.endswith('?'):
 				print

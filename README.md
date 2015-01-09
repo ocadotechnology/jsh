@@ -131,7 +131,7 @@ viewing the list, removing items from the list.  Viewing the list is easy:
 			print 'Items:'
 			print '\n'.join(shopping_list)
 
-Adding items isn't much harder, but this function takes an argument:
+Adding items is even easier, but this function takes an argument:
 
 	def add_item(cli, item):
 		shopping_list.append(item)
@@ -204,10 +204,10 @@ Our CLI now looks like this:
 	> add item ?
 	Possible completions:
 	  <item>   Item description
-	> add item carrots
-	> add item courgettes ?
+	> add item carrots ?
 	Possible completions:
 	  <[Enter]>   Execute this command
+	> add item carrots
 	> add item courgettes  
 	> show list 
 	Items:
@@ -345,8 +345,9 @@ Here's what we have now:
 	beetroot
 	> 
 
-It's also possible for the completion function to return a dictionary.  In
-this case, the values are used as the descriptions in the help output. 
+It's also possible for the completion function to return a dictionary.  In this
+case, the keys are the possible completions and the corresponding values are
+used as the descriptions in the help output. 
 
 If you want more fine-grained control over the input loop, you can separate
 out reading the command and running it:

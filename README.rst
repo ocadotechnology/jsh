@@ -1,20 +1,22 @@
+=================================
 jsh --- a JunOS-style CLI library 
 =================================
 
-If you've ever logged in to a
-[JunOS](http://www.juniper.net/us/en/products-services/nos/junos/) device,
-you'll know how good the CLI is.  It offers:
+If you've ever logged in to a JunOS_ device, you'll know how good the CLI is.
+It offers:
 
- - tab-completion, including completion of names of items in the config
- - help by pressing "?" at any point
- - completion on pressing space or enter
+- tab-completion, including completion of names of items in the config
+- help by pressing "?" at any point
+- completion on pressing space or enter
 
 We have tried to reproduce some of these features in a Python library based
 on Readline.
 
 The library takes a CLI "layout" which is a dictionary that is a tree
 describing your CLI commands.  For example, if you wanted to have a totally
-useless CLI with just an `exit` command, you would define it like this:
+useless CLI with just an ``exit`` command, you would define it like this:
+
+::
 
 	import jsh
 	
@@ -34,6 +36,8 @@ useless CLI with just an `exit` command, you would define it like this:
 
 This would give you a CLI that looks like:
 
+::
+
 	> ?
 	Possible completions:
 	  exit   
@@ -45,8 +49,10 @@ This would give you a CLI that looks like:
 	  <[Enter]>   Execute this command
 	> exit
 
-Now suppose you want to add some help text to describe the `exit` command.
-For that, you need to turn `'exit'` into a dictionary as follows:
+Now suppose you want to add some help text to describe the ``exit`` command.
+For that, you need to turn ``'exit'`` into a dictionary as follows:
+
+::
 
 	layout = {
 		'exit': {
@@ -55,19 +61,23 @@ For that, you need to turn `'exit'` into a dictionary as follows:
 		}
 	}
 
-So the action to take when enter is pressed after typing `exit` is under
-the `None` key, and the help text is under `'?'`.
+So the action to take when enter is pressed after typing ``exit`` is under
+the ``None`` key, and the help text is under ``'?'``.
 
 This makes the help look like this:
+
+::
 
 	> ?
 	Possible completions:
 	  exit   Quit this silly application
 
 Let's now add some commands with more than one word and some custom
-handlers.  We'll add `show version` and `show pid`.  First, we'll need to
+handlers.  We'll add ``show version`` and ``show pid``.  First, we'll need to
 write the functions to handle them.  These functions will take a single
-argument, the `JSH` instance.
+argument, the ``JSH`` instance.
+
+::
 
 	import os
 	
@@ -79,6 +89,8 @@ argument, the `JSH` instance.
 
 Now add these to the layout, along with help text.  The individual words in
 the commands will correspond to levels in the layout tree:
+
+::
 
 	layout = {
 		'show': {
@@ -99,6 +111,8 @@ the commands will correspond to levels in the layout tree:
 	}
 
 We now have this:
+
+::
 
 	> ?
 	Possible completions:
@@ -122,6 +136,8 @@ We now have this:
 Now let's add some shopping list functionality: adding items to the list,
 viewing the list, removing items from the list.  Viewing the list is easy:
 
+::
+
 	shopping_list = []
 	
 	def show_list(cli):
@@ -133,10 +149,14 @@ viewing the list, removing items from the list.  Viewing the list is easy:
 
 Adding items is even easier, but this function takes an argument:
 
+::
+
 	def add_item(cli, item):
 		shopping_list.append(item)
 
 Let's add these to our CLI layout:
+
+::
 
 	layout = {
 		'add': {
@@ -172,6 +192,8 @@ Let's add these to our CLI layout:
 
 There's some new stuff here, let's examine it:
 
+::
+
 	[...]
 	'item': {
 		'?': 'Add item to shopping list',
@@ -182,14 +204,16 @@ There's some new stuff here, let's examine it:
 	}
 	[...]
 
-`str` says that the parser should expect an arbitrary string at this point
+``str`` says that the parser should expect an arbitrary string at this point
 in the command.  Pressing enter after the arbitrary string will run the
-`add_item` function with two arguments: the `JSH` instance and the arbitrary
+``add_item`` function with two arguments: the ``JSH`` instance and the arbitrary
 string entered by the user.  Also notice that the help text is now a tuple
 with the descriptive text as the second element.  The first element is a
 metavariable, and you will see how this is used below.
 
 Our CLI now looks like this:
+
+::
 
 	> show ?
 	Possible completions:
@@ -218,6 +242,8 @@ Our CLI now looks like this:
 We now need a command to remove items from the list.  Here's the function to
 do it:
 
+::
+
 	def remove_item(cli, item):
 		try:
 			shopping_list.remove(item) 
@@ -225,6 +251,8 @@ do it:
 			print 'Item not in list'
 
 Let's expand the CLI layout to handle this:
+
+::
 
 	layout = {
 		'add': {
@@ -270,6 +298,8 @@ Let's expand the CLI layout to handle this:
 
 We now have:
 
+::
+
 	> add item bananas
 	> add item oranges
 	> add item strawberries
@@ -295,13 +325,17 @@ We now have:
 
 That works, but it would be great if we could tab-complete items when
 removing them...and we can!  First, we need a function to list them (again,
-it takes the `JSH` instance as the first argument, and any arbitrary string
+it takes the ``JSH`` instance as the first argument, and any arbitrary string
 arguments that preceed it in the command --- in this case, none):
+
+::
 
 	def complete_items(cli):
 		return shopping_list
 
 And now we integrate this into the layout:
+
+::
 
 	[...]
 	'remove': {
@@ -318,6 +352,8 @@ And now we integrate this into the layout:
 	[...]
 
 Here's what we have now:
+
+::
 
 	> add item carrots
 	> add item courgettes
@@ -352,6 +388,8 @@ used as the descriptions in the help output.
 If you want more fine-grained control over the input loop, you can separate
 out reading the command and running it:
 
+::
+
 	while True:
 		try:
 			command = cli.get_input()
@@ -364,12 +402,13 @@ out reading the command and running it:
 			except jsh.JSHError as err:
 				print err
 
-Another feature, inspired not by the JunOS CLI, but by the
-[F5](https://f5.com/products/big-ip) CLI is sections.  Sections let the user
-focus on a particular part of the CLI.  In our example, we can focus on the
-items in the shopping list.
+Another feature, inspired not by the JunOS CLI, but by the F5_ CLI is sections.
+Sections let the user focus on a particular part of the CLI.  In our example,
+we can focus on the items in the shopping list.
 
 Let's add some commands to our layout to handle this:
+
+::
 
 	layout = {
 		'/': {
@@ -424,6 +463,8 @@ Let's add some commands to our layout to handle this:
 
 This now lets us interact with the CLI like this:
 
+::
+
 	> ?
 	Possible completions:
 	  /        Go to top level
@@ -452,12 +493,14 @@ This now lets us interact with the CLI like this:
 	> 
 
 Being inside the "item" section means that we can (and, in fact, must)
-miss out the second word of a command when that word is `item`.
+miss out the second word of a command when that word is ``item``.
 
 Finally, it would be nice if the CLI told us which section we are currently
 in.  We can do this by customising the prompt and including the string
-`{section}` in it, which will be replaced by the name of the current
+``{section}`` in it, which will be replaced by the name of the current
 section:
+
+::
 
 	cli = jsh.JSH(
 		layout,
@@ -466,11 +509,15 @@ section:
 
 This gives us this:
 
+::
+
 	shopping> /item 
 	shopping(item)> / 
 	shopping> 
 
 We can customise the brackets around the section name, for example:
+
+::
 
 	cli = jsh.JSH(
 		layout,
@@ -480,6 +527,8 @@ We can customise the brackets around the section name, for example:
 
 This gives:
 
+::
+
 	shopping> /item 
 	shopping/item> / 
 	shopping> 
@@ -488,10 +537,13 @@ However, section support is quite basic at the moment and needs more work.
 It's currently nowhere near what the F5 CLI does.
 
 Finally, there are two more settings that you can pass in when initialising
-the `JSH` object: `ignore_case` (default `False`), which controls whether
-the CLI is case-sensitive and `complete_on_space` (default `True`) which
+the ``JSH`` object: ``ignore_case`` (default ``False``), which controls whether
+the CLI is case-sensitive and ``complete_on_space`` (default ``True``) which
 controls whether command completion happens when the user presses space or
 enter.
 
 Enjoy!
+
+.. _JunOS: http://www.juniper.net/us/en/products-services/nos/junos/
+.. _F5: https://f5.com/products/big-ip
 

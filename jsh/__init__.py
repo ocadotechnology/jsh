@@ -112,7 +112,7 @@ class JSH(object):
 				else:
 					break
 
-			if stext in completions:
+			if stext in completions and not text.endswith('?'):
 				completions = {stext: completions[stext]}
 			else:
 				completions = dict((key, value) for key, value in completions.iteritems() if key not in [None, str, '\t', '?'] and key.startswith(stext))

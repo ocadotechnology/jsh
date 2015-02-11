@@ -1,6 +1,6 @@
 """Setup for JSH"""
 
-from distutils.core import setup
+from setuptools import setup
 from jsh.version import __VERSION__
 
 setup(
@@ -10,6 +10,6 @@ setup(
 	author			= 'InfDev',
 	author_email		= 'infdev@ocado.com',
 	packages		= [ 'jsh' ],
-	requires	= [ 'readline' ]
+	install_requires	= [ 'readline' ]
 )
 

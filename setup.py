@@ -10,6 +10,6 @@ setup(
 	author			= 'InfDev',
 	author_email		= 'infdev@ocado.com',
 	packages		= [ 'jsh' ],
-	install_requires	= [ 'readline' ]
+	requires	= [ 'readline' ]
 )
 

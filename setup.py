@@ -1,6 +1,7 @@
 """Setup for JSH"""
 
 from setuptools import setup
+from platform import system
 from jsh.version import __VERSION__
 
 setup(
@@ -10,6 +11,6 @@ setup(
 	author			= 'InfDev',
 	author_email		= 'infdev@ocado.com',
 	packages		= [ 'jsh' ],
-	install_requires	= [ 'readline' ] if platform.system() == 'Darwin' else []
+	install_requires	= [ 'readline' ] if system() == 'Darwin' else []
 )
 

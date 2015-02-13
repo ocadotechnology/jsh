@@ -4,6 +4,7 @@
 deb_dist
 MANIFEST
 dist
+*.egg-info
 jsh-*.tar.gz
 
 .*.sw*

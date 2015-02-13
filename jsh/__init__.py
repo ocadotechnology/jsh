@@ -67,11 +67,13 @@ class JSH(object):
 			try:
 				parts = shlex.split(readline.get_line_buffer().rstrip('?')[:readline.get_endidx()].lower())
 			except:
+				# Inside quotes, don't do any fancy completion
 				if state == 0:
 					return text + ' '
 				else:
 					return None
 
+			# ? entered by itself, signify with None
 			if not stext:
 				parts.append(None)
 			else:
@@ -82,8 +84,10 @@ class JSH(object):
 			args = []
 			level = self.layout
 			while True:
+				# Leaf node, no more completions
 				if hasattr(level, '__call__'):
 					break
+				# User-defined list of completions {'\t': some_func}
 				elif type(level) == dict and '\t' in level and str in level and (not parts or parts[0] is None):
 					try:
 						possibilities = level['\t'](self, *args)
@@ -96,6 +100,7 @@ class JSH(object):
 					completions.update(dynamic)
 					completions.update(dict((key, level[key].get('?', '') if type(level[key]) == dict else '') for key in level.keys()))
 					break
+				# Walk down the levels
 				elif type(level) == dict and (parts and parts[0] is not None and (parts[0] in level or str in level) or depth == 1 and self.section is not None and self.section in level):
 					if parts and parts[0] in level:
 						level = level[parts[0]]
@@ -106,29 +111,38 @@ class JSH(object):
 						level = level[str]
 						args.append(parts.pop(0))
 					depth += 1
+				# We have a dict at this level, get this section's completions
 				elif type(level) == dict:
 					completions = dict((key, level[key].get('?', '') if type(level[key]) == dict else '') for key in level.keys())
 					break
+				# If we reach here, there are no valid completions at this level
 				else:
 					break
 
+			# If you've typed a valid option followed by <tab> or <space>, limit completions to just that option
 			if stext in completions and not text.endswith('?'):
 				completions = {stext: completions[stext]}
+			# Otherwise, limit completions to ones that start with what you've typed
 			else:
 				completions = dict((key, value) for key, value in completions.iteritems() if key not in [None, str, '\t', '?'] and key.startswith(stext))
 
+			# If the user has pressed enter, but there's not just one way to complete the command (0 or 2+), leave it as it is
 			if text == '\n' or text.endswith('\n') and len(completions) != 1:
 				return None
+			# If the user has requested help, display the available options
 			elif text.endswith('?'):
 				print
+				# If a variable is available, add it's <name> to completions
 				if str in level and type(level[str]) == dict and '?' in level[str] and '\t' not in level[str]:
 					compl = level[str]['?']
 					if type(compl) == str:
 						completions['<{0}>'.format(compl)] = ''
 					else:
 						completions['<{0}>'.format(compl[0])] = compl[1]
+				# End of a valid command
 				if None in level and len(text) == 1:
 					completions['<[Enter]>'] = 'Execute this command'
+				# Display valid completions
 				if completions:
 					just = max(map(len, completions.keys()))
 					print 'Possible completions:'
@@ -136,9 +150,11 @@ class JSH(object):
 						print '  {0}   {1}'.format(key.ljust(just), completions[key])
 				else:
 					print 'No valid completions'
+				# Display previous prompt after valid completions
 				print '{0}{1}'.format(self.get_prompt(), readline.get_line_buffer()),
 				sys.stdout.write('')
 				return None
+			# Normalise completion dictionary to format required by readline
 			else:
 				if str in level and '\t' not in level:
 					completions[text] = ''

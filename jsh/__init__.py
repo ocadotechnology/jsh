@@ -144,14 +144,14 @@ class JSH(object):
 			elif text.endswith('?'):
 				print
 				# If a variable is available, add it's <name> to completions
-				if str in level and type(level[str]) == dict and '?' in level[str] and '\t' not in level[str]:
+				if not hasattr(level, '__call__') and str in level and type(level[str]) == dict and '?' in level[str] and '\t' not in level[str]:
 					compl = level[str]['?']
 					if type(compl) == str:
 						completions['<{0}>'.format(compl)] = ''
 					else:
 						completions['<{0}>'.format(compl[0])] = compl[1]
 				# End of a valid command
-				if None in level and len(text) == 1:
+				if (hasattr(level, '__call__') or None in level) and len(text) == 1:
 					completions['<[Enter]>'] = 'Execute this command'
 				# Display valid completions
 				if completions:

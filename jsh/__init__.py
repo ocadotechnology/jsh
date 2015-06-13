@@ -168,7 +168,9 @@ class JSH(object):
 			# Normalise completion dictionary to format required by readline
 			else:
 				if str in level and '\t' not in level:
-					completions[text] = ''
+					completions[stext] = ''
+				if text.endswith('\n') and len(completions) != 1:
+					return None
 				comp_strings = [completion + ' ' for completion in set(completions.keys())]
 				if len(comp_strings) > state:
 					return sorted(comp_strings)[state]

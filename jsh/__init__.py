@@ -9,7 +9,14 @@ class JSHError(Exception):
 
 class JSH(object):
 	section = None
-	def __init__(self, layout, prompt='> ', section_delims=('(', ')'), ignore_case=False, complete_on_space=True):
+	def __init__(
+		self,
+		layout,
+		prompt='> ',
+		section_delims=('(', ')'),
+		ignore_case=False,
+		complete_on_space=True
+	):
 		self.layout = layout
 		self.prompt = prompt
 		self.section_delims = section_delims
@@ -23,7 +30,11 @@ class JSH(object):
 		readline.set_completer_delims(' ')
 		readline.set_completer(self.completer)
 	def get_prompt(self):
-		return self.prompt.format(section='{0}{1}{2}'.format(self.section_delims[0], self.section, self.section_delims[1]) if self.section else '')
+		return self.prompt.format(section='{0}{1}{2}'.format(
+				self.section_delims[0],
+				self.section,
+				self.section_delims[1]
+			) if self.section else '')
 	def read_and_execute(self):
 		command = self.get_input()
 		if command:
@@ -124,7 +135,7 @@ class JSH(object):
 				completions = {stext: completions[stext]}
 			# Otherwise, limit completions to ones that start with what you've typed
 			else:
-				completions = dict((key, value) for key, value in completions.iteritems() if key not in [None, str, '\t', '?'] and key.startswith(stext))
+				completions = dict((key, value) for key, value in completions.iteritems() if key not in (None, str, '\t', '?') and key.startswith(stext))
 
 			# If the user has pressed enter, but there's not just one way to complete the command (0 or 2+), leave it as it is
 			if text == '\n' or text.endswith('\n') and len(completions) != 1:

@@ -57,6 +57,7 @@ cli = jsh.JSH({
             '_hidden': True,
             None: secrets,
         },
+        '_flag': True,
 	},
 	'add': {
 		'?': 'Add stuff',

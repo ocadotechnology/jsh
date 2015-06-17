@@ -33,6 +33,7 @@ class Things(dict):
 things = Things()
 
 def secrets(*args, **kwargs): print 'Oi! I\'m not telling you my secrets.'
+def detailed_secrets(*args, **kwargs): print 'Oi! I\'m not telling you my detailed secrets.'
 
 cli = jsh.JSH({
 	'help': {
@@ -55,6 +56,10 @@ cli = jsh.JSH({
 		},
         'secrets': {
             '_hidden': True,
+            'detail': {
+                '?': 'Detailed secrets',
+                None: detailed_secrets,
+            },
             None: secrets,
         },
         '_flag': True,

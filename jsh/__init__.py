@@ -48,7 +48,7 @@ class JSH(object):
 		except KeyboardInterrupt:
 			print
 			return None
-		return command 
+		return command
 	def commands(self):
 		def walk(level, path=[], paths=[]):
 			new_paths = []
@@ -92,6 +92,7 @@ class JSH(object):
 
 			depth = 0
 			completions = {}
+			hidden_completions = set()
 			args = []
 			level = self.layout
 			while True:
@@ -124,14 +125,17 @@ class JSH(object):
 					depth += 1
 				# We have a dict at this level, get this section's completions
 				elif type(level) == dict:
+					completions = dict((key, level[key].get('?', '') if type(level[key]) == dict else '') for key in level.keys())
+
 					completions = {}
+					hidden_completions = set()
 					for key, value in level.items():
 						help_text = ''
-						if key.startswith('_'):
+						if isinstance(key, basestring) and key.startswith('_'):
 							continue
 						if isinstance(value, dict):
 							if value.get('_hidden', False):
-								continue
+								hidden_completions.add(key)
 							help_text = value.get('?', '')
 						completions[key] = help_text
 					break
@@ -142,6 +146,8 @@ class JSH(object):
 			# If you've typed a valid option followed by <tab> or <space>, limit completions to just that option
 			if stext in completions and not text.endswith('?'):
 				completions = {stext: completions[stext]}
+				if stext in hidden_completions:
+					hidden_completions.remove(stext)
 			# Otherwise, limit completions to ones that start with what you've typed
 			else:
 				completions = dict((key, value) for key, value in completions.iteritems() if key not in (None, str, '\t', '?') and key.startswith(stext))
@@ -166,7 +172,7 @@ class JSH(object):
 				if completions:
 					just = max(map(len, completions.keys()))
 					print 'Possible completions:'
-					for key in sorted(completions.keys(), key=lambda comp: '!!' if comp.startswith('<[') else ('!' + comp if comp.startswith('<') else comp)):
+					for key in sorted([key for key in completions.keys() if key not in hidden_completions], key=lambda comp: '!!' if comp.startswith('<[') else ('!' + comp if comp.startswith('<') else comp)):
 						print '  {0}   {1}'.format(key.ljust(just), completions[key])
 				else:
 					print 'No valid completions'
@@ -180,7 +186,7 @@ class JSH(object):
 					completions[stext] = ''
 				if text.endswith('\n') and len(completions) != 1:
 					return None
-				comp_strings = [completion + ' ' for completion in set(completions.keys())]
+				comp_strings = [completion + ' ' for completion in set(completions.keys()) if completion not in hidden_completions]
 				if len(comp_strings) > state:
 					return sorted(comp_strings)[state]
 				else:

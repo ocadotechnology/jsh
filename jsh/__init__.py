@@ -124,7 +124,16 @@ class JSH(object):
 					depth += 1
 				# We have a dict at this level, get this section's completions
 				elif type(level) == dict:
-					completions = dict((key, level[key].get('?', '') if type(level[key]) == dict else '') for key in level.keys() if not (type(level[key]) == dict and level[key].get('_hidden', False)))
+					completions = {}
+					for key, value in level.items():
+						help_text = ''
+						if key.startswith('_'):
+							continue
+						if isinstance(value, dict):
+							if value.get('_hidden', False):
+								continue
+							help_text = value.get('?', '')
+						completions[key] = help_text
 					break
 				# If we reach here, there are no valid completions at this level
 				else:

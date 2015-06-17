@@ -182,7 +182,7 @@ class JSH(object):
 				return None
 			# Normalise completion dictionary to format required by readline
 			else:
-				if str in level and '\t' not in level and stext.rstrip(' '):
+				if str in level and '\t' not in level and not any(key.startswith(stext) for key in set(level.keys()) - set([str, '?', None])) and stext.rstrip(' '):
 					completions[stext] = ''
 				if text.endswith('\n') and len(completions) != 1:
 					return None

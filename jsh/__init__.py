@@ -56,6 +56,10 @@ class JSH(object):
             return None
         return command
 
+    def redraw_prompt(self):
+        print '{0}{1}'.format(self.get_prompt(), readline.get_line_buffer()),
+        sys.stdout.write('')
+
     def commands(self):
         def walk(level, path=[], paths=[]):
             new_paths = []
@@ -167,8 +171,8 @@ class JSH(object):
                 # If a variable is available, add it's <name> to completions
                 if not hasattr(level, '__call__') and str in level and type(level[str]) == dict and '?' in level[str] and '\t' not in level[str]:
                     compl = level[str]['?']
-                    if type(compl) == str:
-                        completions['<{0}>'.format(compl)] = ''
+                    if isinstance(compl, basestring):
+                        completions['<{0}>'.format(compl)] = level.get('?', '')
                     else:
                         completions['<{0}>'.format(compl[0])] = compl[1]
                 # End of a valid command
@@ -182,13 +186,18 @@ class JSH(object):
                         print '  {0}   {1}'.format(key.ljust(just), completions[key])
                 else:
                     print 'No valid completions'
-                # Display previous prompt after valid completions
-                print '{0}{1}'.format(self.get_prompt(), readline.get_line_buffer()),
-                sys.stdout.write('')
+                self.redraw_prompt()
                 return None
             # Normalise completion dictionary to format required by readline
             else:
                 if str in level and '\t' not in level and not any(key.startswith(stext) for key in set(level.keys()) - set([str, '?', None])) and stext.rstrip(' '):
+                    if '_validate' in level[str]:
+                        validation = level[str]['_validate'](self, stext)
+                        if validation is not True:
+                            print
+                            print 'Invalid argument: {}'.format(validation)
+                            self.redraw_prompt()
+                            return None
                     completions[stext] = ''
                 if text.endswith('\n') and len(completions) != 1:
                     return None
@@ -235,6 +244,11 @@ class JSH(object):
                 # The next argument is a str value, add it to args/kwargs for the final command call and descend
                 elif parts and parts[0] is not None and str in level:
                     level = level[str]
+                    if '_validate' in level:
+                        validation = level['_validate'](self, parts[0])
+                        if validation is not True:
+                            print 'Invalid argument: {}'.format(validation)
+                            return
                     kwarg = level.get('_kwarg', False)
                     if kwarg:
                         kwargs[consumed[-1] if kwarg is True else kwarg] = parts[0]
@@ -273,3 +287,41 @@ def set_section(section):
     def set_section(cli):
         cli.section = section
     return set_section
+
+
+def validate_int(cli, value):
+    try:
+        int(value)
+    except ValueError:
+        return '{0!r} is not a valid integer.'.format(value)
+    return True
+
+
+def validate_in(options):
+    def inner(cli, value):
+        if value in options:
+            return True
+        return '{0!r} is not valid. Choices are: {1}'.format(value, ', '.join(str(x) for x in options))
+    return inner
+
+
+def validate_range(min, max):
+    def inner(cli, value):
+        message = 'Value {0!r} is not within range ({1}, {2})'.format(value, min, max)
+        try:
+            val = int(value)
+        except ValueError:
+            return message
+        if val < min or val > max:
+            return message
+        return True
+    return inner
+
+
+
+
+
+
+
+
+

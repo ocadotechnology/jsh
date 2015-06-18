@@ -8,36 +8,69 @@ def test_command(*args, **kwargs):
     print kwargs
 
 
+def ping(*args, **kwargs):
+    print 'Ping!'
+    print args
+    print kwargs
+
+
 cli = jsh.JSH({
     'help': {
         '?': 'Show help',
-        None: jsh.show_commands
+        None: jsh.show_commands,
     },
     'quit': {
         '?': 'Quit',
-        None: jsh.exit
+        None: jsh.exit,
     },
     'test': {
         '?': 'Test something',
         str: {
-            '?': ('thing', 'Thing to test'),
+            '?': ('thing', 'Must be an integer'),
             None: test_command,
+            '_validate': jsh.validate_int,
             '_kwarg': True,
             str: {
-                '?': ('another', 'Another thing to test'),
+                '?': ('thing', 'Must be in (0..200)'),
                 None: test_command,
+                '_validate': jsh.validate_range(0, 200),
                 'bob': {
                     '?': 'Bob',
                     None: test_command,
                     str: {
-                        '?': ('yet', 'Yet another thing to test'),
+                        '?': ('yet', 'Must be one of a, b or c'),
+                        '_validate': jsh.validate_in(['a', 'b', 'c']),
                         None: test_command,
                         '_kwarg': 'bobby',
-                    }
-                }
-            }
-        }
-    }
+                    },
+                },
+            },
+        },
+    },
+    'ping': {
+        '?': 'Ping a destination',
+        str: {
+            '?': ('host', 'Host to ping'),
+            None: ping,
+            '_kwarg': 'host',
+        },
+        'size': {
+            '?': 'Size of request packets',
+            str: {
+                '?': 'size',
+                '_kwarg': 'size',
+                '_option': True,
+            },
+        },
+        'ttl': {
+            '?': 'IP time-to-live value',
+            str: {
+                '?': 'ttl',
+                '_kwarg': True,
+                '_option': True,
+            },
+        },
+    },
 })
 
 

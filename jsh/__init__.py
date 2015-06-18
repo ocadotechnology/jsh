@@ -133,8 +133,6 @@ class JSH(object):
                     depth += 1
                 # We have a dict at this level, get this section's completions
                 elif type(level) == dict:
-                    completions = dict((key, level[key].get('?', '') if type(level[key]) == dict else '') for key in level.keys())
-
                     completions = {}
                     hidden_completions = set()
                     for key, value in level.items():
@@ -209,28 +207,39 @@ class JSH(object):
         parts.append(None)
 
         args = []
+        kwargs = {}
         consumed = []
         depth = 0
         level = self.layout
         while True:
+            # Leaf node, this is the command we actually want to call
             if hasattr(level, '__call__'):
                 if parts and parts[-1] is None:
                     parts.pop()
+                # If we've reached this level and there are still arguments left to process, they're unexpected
                 if parts:
                     raise JSHError("Unexpected arguments{0}: '{1}'".format(
                         " after '{0}'".format(' '.join(consumed)) if consumed else '',
                         ' '.join(parts)
                     ))
-                return level(self, *args)
+                return level(self, *args, **kwargs)
+            # Walk down the levels, matching the next arguments in the command
             elif type(level) == dict and (parts and parts[0] in level or parts and parts[0] is not None and str in level or depth == 1 and self.section is not None and self.section in level):
+                # The next argument is a command name, descend
                 if parts and parts[0] in level:
                     level = level[parts[0]]
                     consumed.append(parts.pop(0))
+                # If we're in a section, descend without consuming a command
                 elif depth == 1 and self.section is not None and self.section in level:
                     level = level[self.section]
+                # The next argument is a str value, add it to args/kwargs for the final command call and descend
                 elif parts and parts[0] is not None and str in level:
-                    args.append(parts[0])
                     level = level[str]
+                    kwarg = level.get('_kwarg', False)
+                    if kwarg:
+                        kwargs[consumed[-1] if kwarg is True else kwarg] = parts[0]
+                    else:
+                        args.append(parts[0])
                     consumed.append(parts.pop(0))
                 depth += 1
             else:

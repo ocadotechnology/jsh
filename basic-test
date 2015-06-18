@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+import jsh
+
+
+def test_command(*args, **kwargs):
+    print args
+    print kwargs
+
+
+cli = jsh.JSH({
+    'help': {
+        '?': 'Show help',
+        None: jsh.show_commands
+    },
+    'quit': {
+        '?': 'Quit',
+        None: jsh.exit
+    },
+    'test': {
+        '?': 'Test something',
+        str: {
+            '?': ('thing', 'Thing to test'),
+            None: test_command,
+            '_kwarg': True,
+            str: {
+                '?': ('another', 'Another thing to test'),
+                None: test_command,
+                'bob': {
+                    '?': 'Bob',
+                    None: test_command,
+                    str: {
+                        '?': ('yet', 'Yet another thing to test'),
+                        None: test_command,
+                        '_kwarg': 'bobby',
+                    }
+                }
+            }
+        }
+    }
+})
+
+
+while True:
+    try:
+        cli.read_and_execute()
+    except jsh.JSHError as err:
+        print err
+    except EOFError:
+        break

@@ -26,14 +26,17 @@ class Things(dict):
 			print 'No such thing {0}'.format(thing)
 	def delete(self, cli, thing):
 		try:
-			del(self[thing])
+			del self[thing]
 		except KeyError:
 			print 'No such thing {0}'.format(thing)
 
 things = Things()
 
-def secrets(*args, **kwargs): print 'Oi! I\'m not telling you my secrets.'
-def detailed_secrets(*args, **kwargs): print 'Oi! I\'m not telling you my detailed secrets.'
+def secrets(cli):
+	print 'Oi! I\'m not telling you my secrets.'
+
+def detailed_secrets(cli):
+	print 'Oi! I\'m not telling you my detailed secrets.'
 
 cli = jsh.JSH({
 	'help': {

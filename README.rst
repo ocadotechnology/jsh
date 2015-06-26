@@ -16,7 +16,7 @@ The library takes a CLI "layout" which is a dictionary that is a tree
 describing your CLI commands.  For example, if you wanted to have a totally
 useless CLI with just an ``exit`` command, you would define it like this:
 
-::
+.. code-block:: python
 
     import jsh
 
@@ -52,7 +52,7 @@ This would give you a CLI that looks like:
 Now suppose you want to add some help text to describe the ``exit`` command.
 For that, you need to turn ``'exit'`` into a dictionary as follows:
 
-::
+.. code-block:: python
 
     layout = {
         'exit': {
@@ -77,7 +77,7 @@ handlers.  We'll add ``show version`` and ``show pid``.  First, we'll need to
 write the functions to handle them.  These functions will take a single
 argument, the ``JSH`` instance.
 
-::
+.. code-block:: python
 
     import os
 
@@ -90,7 +90,7 @@ argument, the ``JSH`` instance.
 Now add these to the layout, along with help text.  The individual words in
 the commands will correspond to levels in the layout tree:
 
-::
+.. code-block:: python
 
     layout = {
         'show': {
@@ -136,7 +136,7 @@ We now have this:
 Now let's add some shopping list functionality: adding items to the list,
 viewing the list, removing items from the list.  Viewing the list is easy:
 
-::
+.. code-block:: python
 
     shopping_list = []
 
@@ -149,14 +149,14 @@ viewing the list, removing items from the list.  Viewing the list is easy:
 
 Adding items is even easier, but this function takes an argument:
 
-::
+.. code-block:: python
 
     def add_item(cli, item):
         shopping_list.append(item)
 
 Let's add these to our CLI layout:
 
-::
+.. code-block:: python
 
     layout = {
         'add': {
@@ -192,7 +192,7 @@ Let's add these to our CLI layout:
 
 There's some new stuff here, let's examine it:
 
-::
+.. code-block:: python
 
     [...]
     'item': {
@@ -242,7 +242,7 @@ Our CLI now looks like this:
 We now need a command to remove items from the list.  Here's the function to
 do it:
 
-::
+.. code-block:: python
 
     def remove_item(cli, item):
         try:
@@ -252,7 +252,7 @@ do it:
 
 Let's expand the CLI layout to handle this:
 
-::
+.. code-block:: python
 
     layout = {
         'add': {
@@ -328,14 +328,14 @@ removing them... and we can!  First, we need a function to list them (again,
 it takes the ``JSH`` instance as the first argument, and any arbitrary string
 arguments that preceed it in the command --- in this case, none):
 
-::
+.. code-block:: python
 
     def complete_items(cli):
         return shopping_list
 
 And now we integrate this into the layout:
 
-::
+.. code-block:: python
 
     [...]
     'remove': {
@@ -388,7 +388,7 @@ used as the descriptions in the help output.
 If you want more fine-grained control over the input loop, you can separate
 out reading the command and running it:
 
-::
+.. code-block:: python
 
     while True:
         try:
@@ -408,7 +408,7 @@ we can focus on the items in the shopping list.
 
 Let's add some commands to our layout to handle this:
 
-::
+.. code-block:: python
 
     layout = {
         '/': {
@@ -500,7 +500,7 @@ in.  We can do this by customising the prompt and including the string
 ``{section}`` in it, which will be replaced by the name of the current
 section:
 
-::
+.. code-block:: python
 
     cli = jsh.JSH(
         layout,
@@ -517,7 +517,7 @@ This gives us this:
 
 We can customise the brackets around the section name, for example:
 
-::
+.. code-block:: python
 
     cli = jsh.JSH(
         layout,

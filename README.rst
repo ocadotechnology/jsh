@@ -401,6 +401,69 @@ out reading the command and running it:
                 cli.run_command(command)
             except jsh.JSHError as err:
                 print err
+                
+Argument Validation
+-------------------
+
+JSH allows you to validate that a user-defined token matches a format you expect. There are currently three built-in validators, but it is easy to write your own. Given the following layout:
+
+.. code-block:: python
+
+    layout = {
+        'number': {
+            '?': 'Enter a number',
+            str: {
+                '?': ('num', 'A number'),
+                '_validate': jsh.validate_int,
+            },
+        },
+    }
+    
+The user will now be unable to enter, or tab-complete, a value that is not a valid integer:
+
+::
+
+    > ?
+    Possible completions:
+      number    Enter a number
+    > number ?
+    Possible completions:
+      num       A number
+    > number foo
+    Invalid argument: 'foo' is not a valid integer.
+    > number 5
+    
+JSH provides three validators: ``JSH.validate_int``, ``JSH.validate_in(iterable)``, and ``JSH.validate_range(min, max)``. ``validate_in`` takes an interable of strings that the argument must be one of, and ``validate_range`` takes a ``min`` and ``max`` integer value that the argument must be between (inclusive).
+
+You can easily write your own validators - just provide a function that takes two arguments (the CLI object, and the user-defined string) and returns either ``True``, or an error message.
+
+Keyword Arguments to methods
+----------------------------
+
+By default, any user-defined arguments present in the command string will be passed in their original order to the final method that gets called when the command is submitted. To pass these as keyword arguments instead, provide an option ``_kwarg`` underneath the ``str`` layout:
+
+.. code-block:: python
+
+    layout = {
+        'add': {
+            '?': 'Add stuff',
+            'item': {
+                '?': 'Add item to shopping list',
+                str: {
+                    '?': ('item', 'Item description'),
+                    None: add_item,
+                    '_kwarg': 'item',
+                }
+            }
+        },
+    }
+    
+Now ``add_item`` will be called with ``add_item(cli, item=value)`` instead of just ``add_item(cli, value)``. This example doesn't make a difference, but with it allows you to untie your method signature from your command structure.
+
+If you want the keyword argument name to be the same as the prior command token (as in the case above - the ``str`` follows the word 'item', and we want the keyword argument to be called ``item`` too), we can avoid defining it twice by using ``'_kwarg': True`` instead.
+
+Sections
+--------
 
 Another feature, inspired not by the Junos CLI, but by the F5_ CLI is sections.
 Sections let the user focus on a particular part of the CLI.  In our example,

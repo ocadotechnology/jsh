@@ -58,11 +58,14 @@ class JSH(object):
         return command
 
     def redraw_prompt(self):
-        print('{0}{1}'.format(self.get_prompt(), readline.get_line_buffer()), end=' ')
-        sys.stdout.write('')
+        print('{0}{1}'.format(self.get_prompt(), readline.get_line_buffer()), end='')
 
     def commands(self):
-        def walk(level, path=[], paths=[]):
+        def walk(level, path=None, paths=None):
+            if path is None:
+                path = []
+            if paths is None:
+                paths = []
             new_paths = []
             if type(level) == dict:
                 for key in level.keys():
@@ -86,6 +89,10 @@ class JSH(object):
     @property
     def completer(self):
         def complete(text, state):
+
+            # Allowing bare except: clauses because errors inside the completer just get hidden
+            # pylint: disable=W0702
+
             stext = text.rstrip('?\n')
 
             try:
@@ -109,11 +116,14 @@ class JSH(object):
             args = []
             level = self.layout
             while True:
+
                 # Leaf node, no more completions
                 if hasattr(level, '__call__'):
                     break
+
                 # User-defined list of completions {'\t': some_func}
                 elif type(level) == dict and '\t' in level and str in level and (not parts or parts[0] is None):
+
                     try:
                         possibilities = level['\t'](self, *args)
                         if isinstance(possibilities, dict):
@@ -125,8 +135,14 @@ class JSH(object):
                     completions.update(dynamic)
                     completions.update(dict((key, level[key].get('?', '') if type(level[key]) == dict else '') for key in level.keys()))
                     break
+
                 # Walk down the levels
-                elif type(level) == dict and (parts and parts[0] is not None and (parts[0] in level or str in level) or depth == 1 and self.section is not None and self.section in level):
+                elif (type(level) == dict and
+                        (parts and parts[0] is not None and
+                         (parts[0] in level or str in level) or
+                         depth == 1 and self.section is not None and
+                         self.section in level)):
+
                     if parts and parts[0] in level:
                         level = level[parts[0]]
                         parts.pop(0)
@@ -136,8 +152,10 @@ class JSH(object):
                         level = level[str]
                         args.append(parts.pop(0))
                     depth += 1
+
                 # We have a dict at this level, get this section's completions
                 elif type(level) == dict:
+
                     completions = {}
                     hidden_completions = set()
                     for key, value in level.items():
@@ -150,6 +168,7 @@ class JSH(object):
                             help_text = value.get('?', '')
                         completions[key] = help_text
                     break
+
                 # If we reach here, there are no valid completions at this level
                 else:
                     break
@@ -166,8 +185,10 @@ class JSH(object):
             # If the user has pressed enter, but there's not just one way to complete the command (0 or 2+), leave it as it is
             if text == '\n' or text.endswith('\n') and len(completions) != 1:
                 return None
+
             # If the user has requested help, display the available options
             elif text.endswith('?'):
+
                 print()
                 # If a variable is available, add it's <name> to completions
                 if not hasattr(level, '__call__') and str in level and type(level[str]) == dict and '?' in level[str] and '\t' not in level[str]:
@@ -176,22 +197,38 @@ class JSH(object):
                         completions['<{0}>'.format(compl)] = level.get('?', '')
                     else:
                         completions['<{0}>'.format(compl[0])] = compl[1]
+
                 # End of a valid command
                 if (hasattr(level, '__call__') or None in level) and len(text) == 1:
                     completions['<[Enter]>'] = 'Execute this command'
+
                 # Display valid completions
                 if completions:
                     just = max(map(len, completions.keys()))
                     print('Possible completions:')
-                    for key in sorted([key for key in completions.keys() if key not in hidden_completions], key=lambda comp: '!!' if comp.startswith('<[') else ('!' + comp if comp.startswith('<') else comp)):
+
+                    def comp_func(comp):
+                        if comp.startswith('<['):
+                            return '!!'
+                        elif comp.startswith('<'):
+                            return '!' + comp
+                        return comp
+
+                    for key in sorted([k for k in completions.keys() if k not in hidden_completions], key=comp_func):
                         print('  {0}   {1}'.format(key.ljust(just), completions[key]))
+
                 else:
                     print('No valid completions')
                 self.redraw_prompt()
                 return None
+
             # Normalise completion dictionary to format required by readline
             else:
-                if str in level and '\t' not in level and not any(key.startswith(stext) for key in set(level.keys()) - set([str, '?', None])) and stext.rstrip(' '):
+
+                if (str in level and '\t' not in level and
+                        not any(key.startswith(stext) for key in set(level.keys()) - set([str, '?', None])) and
+                        stext.rstrip(' ')):
+
                     if '_validate' in level[str]:
                         validation = level[str]['_validate'](self, stext)
                         if validation is not True:
@@ -200,13 +237,16 @@ class JSH(object):
                             self.redraw_prompt()
                             return None
                     completions[stext] = ''
+
                 if text.endswith('\n') and len(completions) != 1:
                     return None
+
                 comp_strings = [completion + ' ' for completion in set(completions.keys()) if completion not in hidden_completions]
                 if len(comp_strings) > state:
                     return sorted(comp_strings)[state]
                 else:
                     return None
+
         return complete
 
     def run_command(self, command):
@@ -222,6 +262,7 @@ class JSH(object):
         depth = 0
         level = self.layout
         while True:
+
             # Leaf node, this is the command we actually want to call
             if hasattr(level, '__call__'):
                 if parts and parts[-1] is None:
@@ -233,8 +274,13 @@ class JSH(object):
                         ' '.join(parts)
                     ))
                 return level(self, *args, **kwargs)
+
             # Walk down the levels, matching the next arguments in the command
-            elif type(level) == dict and (parts and parts[0] in level or parts and parts[0] is not None and str in level or depth == 1 and self.section is not None and self.section in level):
+            elif (type(level) == dict and
+                    (parts and parts[0] in level or
+                    parts and parts[0] is not None and str in level or
+                    depth == 1 and self.section is not None and self.section in level)):
+
                 # The next argument is a command name, descend
                 if parts and parts[0] in level:
                     level = level[parts[0]]
@@ -257,6 +303,7 @@ class JSH(object):
                         args.append(parts[0])
                     consumed.append(parts.pop(0))
                 depth += 1
+
             else:
                 if parts and parts[-1] is None:
                     parts.pop()
@@ -269,11 +316,13 @@ class JSH(object):
                     raise JSHError("Incomplete command '{0}'".format(' '.join(consumed)))
 
 
+# pylint: disable=W0622
 def exit(whatever):
     if type(whatever) == JSH:
         sys.exit(0)
     else:
-        def quit(cli):
+        # pylint: disable=W0622
+        def quit(_):
             sys.exit(whatever)
         return quit
 
@@ -290,7 +339,7 @@ def set_section(section):
     return set_section
 
 
-def validate_int(cli, value):
+def validate_int(_, value):
     try:
         int(value)
     except ValueError:
@@ -299,21 +348,21 @@ def validate_int(cli, value):
 
 
 def validate_in(options):
-    def inner(cli, value):
+    def inner(_, value):
         if value in options:
             return True
         return '{0!r} is not valid. Choices are: {1}'.format(value, ', '.join(str(x) for x in options))
     return inner
 
 
-def validate_range(min, max):
-    def inner(cli, value):
-        message = 'Value {0!r} is not within range ({1}, {2})'.format(value, min, max)
+def validate_range(min_val, max_val):
+    def inner(_, value):
+        message = 'Value {0!r} is not within range ({1}, {2})'.format(value, min_val, max_val)
         try:
             val = int(value)
         except ValueError:
             return message
-        if val < min or val > max:
+        if val < min_val or val > max_val:
             return message
         return True
     return inner

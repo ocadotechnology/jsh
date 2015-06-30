@@ -2,6 +2,22 @@
 jsh - a Junos-style CLI library
 =================================
 
+.. image:: https://img.shields.io/travis/ocadotechnology/jsh.svg
+   :target: https://travis-ci.org/ocadotechnology/jsh
+   :alt: Build Status
+.. image:: https://landscape.io/github/ocadotechnology/jsh/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/ocadotechnology/jsh/master
+   :alt: Code Health Badge
+.. image:: https://readthedocs.org/projects/jsh/badge/?version=latest
+   :target: http://jsh.readthedocs.org/en/latest/
+   :alt: Documentation Status
+.. image:: https://img.shields.io/pypi/v/jsh.svg
+   :target: https://pypi.python.org/pypi/jsh/
+   :alt: Version Badge
+.. image:: https://img.shields.io/pypi/l/jsh.svg
+   :target: https://pypi.python.org/pypi/jsh/
+   :alt: License Badge
+
 **JSH** is a Junos-inspired CLI library for your Python apps.
 If you've ever logged into a Junos_ device, you'll know how good the CLI is.
 It offers:

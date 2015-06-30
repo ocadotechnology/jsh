@@ -15,7 +15,7 @@ based on Readline, to allow you to build better quality CLIs for your apps.
 Requirements
 ============
 
-* Python 2.7
+* Python 2.6+
 
 Installation
 ============

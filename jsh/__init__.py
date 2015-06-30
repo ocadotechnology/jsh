@@ -1,4 +1,4 @@
 try:
-    from .client import *
+    from .client import * # pylint: disable=W0622
 except ImportError:
     pass

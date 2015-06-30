@@ -2,17 +2,23 @@ language: python
 python:
 - 2.6
 - 2.7
-- 3.2
 - 3.3
 - pypy
 - pypy3
+matrix:
+  allow_failures:
+  - python: pypy
+  - python: pypy3
 install:
 - pip install gitversion
-- pip install .
+- pip install -e .
 - pip install coveralls
 script:
+- SITEPACKAGES=$(python -c 'from distutils.sysconfig import get_python_lib; print(get_python_lib())')
+- echo 'import coverage; coverage.process_startup()' > $SITEPACKAGES/sitecustomize.py
 - python setup.py test
 after_success:
+- coverage combine
 - coveralls
 deploy:
   provider: pypi

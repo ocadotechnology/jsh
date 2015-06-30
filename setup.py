@@ -1,8 +1,30 @@
 """Setup for JSH"""
 
 from setuptools import setup
+from setuptools.command.test import test as TestCommand
 from platform import system
 from jsh.version import __VERSION__
+
+
+class NoseTestCommand(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        # Run nose ensuring that argv simulates running nosetests directly
+        import nose
+        import os
+        os.environ['COVERAGE_PROCESS_START'] = '.coveragerc'
+        nose.run_exit(argv=['nosetests'])
+
+INSTALL_REQUIRES = [
+    'six',
+]
+
+if system() == 'Darwin':
+    INSTALL_REQUIRES.append('readline')
 
 setup(
     name='jsh',
@@ -13,7 +35,7 @@ setup(
     long_description=open('README.rst').read(),
     url='https://github.com/ocadotechnology/jsh/',
     packages=['jsh'],
-    install_requires=['readline'] if system() == 'Darwin' else [],
+    install_requires=INSTALL_REQUIRES,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
@@ -27,4 +49,10 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
+    tests_require=[
+        'coverage',
+        'nose',
+        'pexpect < 4.0',
+    ],
+    cmdclass={'test': NoseTestCommand},
 )

@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import readline
 import shlex
+import six
 import sys
 
 from .exceptions import JSHError
@@ -45,7 +46,7 @@ class JSH(object):
 
     def get_input(self):
         try:
-            command = raw_input(self.get_prompt()).strip()
+            command = six.moves.input(self.get_prompt()).strip()
         except EOFError:
             print()
             raise
@@ -157,7 +158,7 @@ class JSH(object):
                     hidden_completions = set()
                     for key, value in level.items():
                         help_text = ''
-                        if isinstance(key, basestring) and key.startswith('_'):
+                        if isinstance(key, six.string_types) and key.startswith('_'):
                             continue
                         if isinstance(value, dict):
                             if value.get('_hidden', False):
@@ -177,7 +178,7 @@ class JSH(object):
                     hidden_completions.remove(stext)
             # Otherwise, limit completions to ones that start with what you've typed
             else:
-                completions = dict((key, value) for key, value in completions.iteritems() if key not in (None, str, '\t', '?') and key.startswith(stext))
+                completions = dict((key, value) for key, value in six.iteritems(completions) if key not in (None, str, '\t', '?') and key.startswith(stext))
 
             # If the user has pressed enter, but there's not just one way to complete the command (0 or 2+), leave it as it is
             if text == '\n' or text.endswith('\n') and len(completions) != 1:
@@ -190,7 +191,7 @@ class JSH(object):
                 # If a variable is available, add it's <name> to completions
                 if not hasattr(level, '__call__') and str in level and type(level[str]) == dict and '?' in level[str] and '\t' not in level[str]:
                     compl = level[str]['?']
-                    if isinstance(compl, basestring):
+                    if isinstance(compl, six.string_types):
                         completions['<{0}>'.format(compl)] = level.get('?', '')
                     else:
                         completions['<{0}>'.format(compl[0])] = compl[1]

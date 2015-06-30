@@ -1,0 +1,10 @@
+mccabe:
+  disable:
+    - MC0001
+
+pylint:
+  disable:
+    - R0912
+    - R0913
+    - R0914
+    - R0915

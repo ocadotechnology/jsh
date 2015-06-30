@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
 import readline
 import shlex
@@ -49,15 +50,15 @@ class JSH(object):
         try:
             command = raw_input(self.get_prompt()).strip()
         except EOFError:
-            print
+            print()
             raise
         except KeyboardInterrupt:
-            print
+            print()
             return None
         return command
 
     def redraw_prompt(self):
-        print '{0}{1}'.format(self.get_prompt(), readline.get_line_buffer()),
+        print('{0}{1}'.format(self.get_prompt(), readline.get_line_buffer()), end=' ')
         sys.stdout.write('')
 
     def commands(self):
@@ -167,7 +168,7 @@ class JSH(object):
                 return None
             # If the user has requested help, display the available options
             elif text.endswith('?'):
-                print
+                print()
                 # If a variable is available, add it's <name> to completions
                 if not hasattr(level, '__call__') and str in level and type(level[str]) == dict and '?' in level[str] and '\t' not in level[str]:
                     compl = level[str]['?']
@@ -181,11 +182,11 @@ class JSH(object):
                 # Display valid completions
                 if completions:
                     just = max(map(len, completions.keys()))
-                    print 'Possible completions:'
+                    print('Possible completions:')
                     for key in sorted([key for key in completions.keys() if key not in hidden_completions], key=lambda comp: '!!' if comp.startswith('<[') else ('!' + comp if comp.startswith('<') else comp)):
-                        print '  {0}   {1}'.format(key.ljust(just), completions[key])
+                        print('  {0}   {1}'.format(key.ljust(just), completions[key]))
                 else:
-                    print 'No valid completions'
+                    print('No valid completions')
                 self.redraw_prompt()
                 return None
             # Normalise completion dictionary to format required by readline
@@ -194,8 +195,8 @@ class JSH(object):
                     if '_validate' in level[str]:
                         validation = level[str]['_validate'](self, stext)
                         if validation is not True:
-                            print
-                            print 'Invalid argument: {}'.format(validation)
+                            print()
+                            print('Invalid argument: {}'.format(validation))
                             self.redraw_prompt()
                             return None
                     completions[stext] = ''
@@ -247,7 +248,7 @@ class JSH(object):
                     if '_validate' in level:
                         validation = level['_validate'](self, parts[0])
                         if validation is not True:
-                            print 'Invalid argument: {}'.format(validation)
+                            print('Invalid argument: {}'.format(validation))
                             return
                     kwarg = level.get('_kwarg', False)
                     if kwarg:
@@ -278,9 +279,9 @@ def exit(whatever):
 
 
 def show_commands(cli):
-    print 'Available commands:'
+    print('Available commands:')
     for command in cli.commands():
-        print '  {0}'.format(' '.join(command))
+        print('  {0}'.format(' '.join(command)))
 
 
 def set_section(section):
@@ -316,12 +317,3 @@ def validate_range(min, max):
             return message
         return True
     return inner
-
-
-
-
-
-
-
-
-

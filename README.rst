@@ -5,7 +5,7 @@ jsh - a Junos-style CLI library
 .. image:: https://img.shields.io/travis/ocadotechnology/jsh.svg
    :target: https://travis-ci.org/ocadotechnology/jsh
    :alt: Build Status
-.. image:: https://landscape.io/github/ocadotechnology/jsh/master/landscape.svg?style=flat
+.. image:: https://landscape.io/github/ocadotechnology/jsh/master/landscape.svg
    :target: https://landscape.io/github/ocadotechnology/jsh/master
    :alt: Code Health Badge
 .. image:: https://readthedocs.org/projects/jsh/badge/?version=latest

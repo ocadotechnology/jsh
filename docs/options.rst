@@ -46,3 +46,11 @@ The following options are available as keys in the layout dictionary.
     This allows you to decouple the handler function's signature from the layout
     tree. If ``None``, the name of the token prior to the ``str`` token is used
     as the keyword.
+
+.. attribute:: '_hidden'
+
+    Default: ``False``
+
+    A boolean value determining whether this command should be shown in completion
+    and help output. Can be used to implement hidden commands that are only available
+    if the user knows they are there.

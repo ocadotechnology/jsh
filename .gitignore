@@ -8,3 +8,4 @@ dist
 jsh-*.tar.gz
 
 .*.sw*
+_build

@@ -1,0 +1,26 @@
+language: python
+python:
+- 2.6
+- 2.7
+- 3.2
+- 3.3
+- pypy
+- pypy3
+install:
+- pip install gitversion
+- pip install .
+- pip install coveralls
+script:
+- python setup.py test
+after_success:
+- coveralls
+deploy:
+  provider: pypi
+  user: ocadotechnology
+  password:
+    secure: pGvk68crPAvN+JstjRzo7CaYN1Uq04heRJ5WmmGj2db3zLvvoCF4MALAjnlAJpLOwRPyb0F/99bMC6EIOzgwojj42hhHl2LpBL9TVhy7gCCqQBb07oRZDWjPuRLIWfrmNfO1nJq9TLatyPw9Oe7H0b658SvmRxdCJzN2BkAU98gp8IBoy8XlBA5E6spBk+KImiCYMSaTOpzDaxgkkICs+ZRN7GtQ3ADiNCBdqL7EMwP8nbN0P4OJLle059uM3wZ38pRWJXBa9cOekyziZEjufrcocSh3JMEAkIUNGAW2veO0jhqtQNdR7WuCq/9T+e/ov3/koppnYbD8gVvqF2jZ8VgCRFqjdQOQajbJrCdMp3vfVFlYcLfLLlizm5StcYlqcXNbOoXvsHcWKBl2XMv2F4NhcEW3B8bclN6T1ccC4JXN2BjVWIn0bjXpS/C6XiKGYjyErDW11zwg3wzQG/Dql+ZB2F06dLcWaoXkDbU6uwTDELizY9fadtKqu2hhJL6YnQU1o/IpVKwjy7UZcm/8oQM12bX0qVeeIVZOMyO4GiaMCKSz4SxqZCF/MnNwIkLDXuS3DFEKKwTFKOMO3OiwdXw2Pr2DfqBZe72DcA8UNtdEfa62Lvv+8LpdROREYp9vF80lMM0tbvJTGDPoSumtAAR8YuGBclVumsrLQ0QjrsE=
+  distributions: "bdist_wheel sdist"
+  on:
+    all_branches: true
+    repo: ocadotechnology/jsh
+    tags: true

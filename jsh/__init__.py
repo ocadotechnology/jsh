@@ -58,8 +58,7 @@ class JSH(object):
         return command
 
     def redraw_prompt(self):
-        print('{0}{1}'.format(self.get_prompt(), readline.get_line_buffer()), end=' ')
-        sys.stdout.write('')
+        print('{0}{1}'.format(self.get_prompt(), readline.get_line_buffer()), end='')
 
     def commands(self):
         def walk(level, path=[], paths=[]):

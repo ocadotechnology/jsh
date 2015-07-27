@@ -14,7 +14,7 @@ def ping(*args, **kwargs):
     print kwargs
 
 
-cli = jsh.JSH({
+layout = {
     'help': {
         '?': 'Show help',
         None: jsh.show_commands,
@@ -71,13 +71,6 @@ cli = jsh.JSH({
             },
         },
     },
-})
+}
 
-
-while True:
-    try:
-        cli.read_and_execute()
-    except jsh.JSHError as err:
-        print err
-    except EOFError:
-        break
+jsh.run(layout)

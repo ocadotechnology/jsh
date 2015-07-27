@@ -54,6 +54,12 @@ just an ``exit`` command, you would define it like this:
         'exit': jsh.exit,
     }
 
+    jsh.run(layout)
+
+``jsh.run`` is a shortcut for the following:
+
+.. code-block:: python
+
     cli = jsh.JSH(layout)
 
     while True:
@@ -66,7 +72,8 @@ just an ``exit`` command, you would define it like this:
 
 This creates a basic layout with a single available command (``exit``), passes
 it to an instance ``jsh.JSH``, and starts an infinite loop, using the ``read_and_execute``
-method of the ``JSH`` CLI object to interact with the user.
+method of the ``JSH`` CLI object to interact with the user. For more control
+over this loop, you should write your own instead of using ``jsh.run``.
 
 This provides a CLI that looks like the following:
 

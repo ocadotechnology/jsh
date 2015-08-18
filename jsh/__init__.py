@@ -366,3 +366,14 @@ def validate_range(min_val, max_val):
             return message
         return True
     return inner
+
+
+def run(layout):
+    cli = JSH(layout)
+    while True:
+        try:
+            cli.read_and_execute()
+        except JSHError as err:
+            print(err)
+        except EOFError:
+            break

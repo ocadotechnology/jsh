@@ -1,17 +1,17 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import jsh
 
 
 def test_command(*args, **kwargs):
-    print args
-    print kwargs
+    print(args)
+    print(kwargs)
 
 
 def ping(*args, **kwargs):
-    print 'Ping!'
-    print args
-    print kwargs
+    print('Ping!')
+    print(args)
+    print(kwargs)
 
 
 layout = {

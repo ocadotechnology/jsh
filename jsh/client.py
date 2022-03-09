@@ -1,4 +1,3 @@
-from __future__ import print_function
 
 import readline
 import shlex
@@ -23,6 +22,7 @@ class JSH(object):
         self.prompt = prompt
         self.section_delims = section_delims
         self.ignore_case = ignore_case
+
         readline.parse_and_bind('set bell-style none')
         readline.parse_and_bind('tab: complete')
         readline.parse_and_bind('"?": "\\C-v?\\t\\d"')
@@ -56,7 +56,7 @@ class JSH(object):
         return command
 
     def redraw_prompt(self):
-        print('{0}{1}'.format(self.get_prompt(), readline.get_line_buffer()), end='')
+        print(self.get_prompt().strip(), readline.get_line_buffer().rstrip('?'), end=' ', flush=True)
 
     def commands(self):
         def walk(level, path=None, paths=None):
@@ -66,7 +66,7 @@ class JSH(object):
                 paths = []
             new_paths = []
             if type(level) == dict:
-                for key in level.keys():
+                for key in list(level.keys()):
                     if key in ['\t', '?']:
                         continue
                     if key is None or len(path) == 1 and key == self.section:
@@ -131,7 +131,7 @@ class JSH(object):
                     except:
                         dynamic = {}
                     completions.update(dynamic)
-                    completions.update(dict((key, level[key].get('?', '') if type(level[key]) == dict else '') for key in level.keys()))
+                    completions.update(dict((key, level[key].get('?', '') if type(level[key]) == dict else '') for key in list(level.keys())))
                     break
 
                 # Walk down the levels
@@ -156,7 +156,7 @@ class JSH(object):
 
                     completions = {}
                     hidden_completions = set()
-                    for key, value in level.items():
+                    for key, value in list(level.items()):
                         help_text = ''
                         if isinstance(key, six.string_types) and key.startswith('_'):
                             continue
@@ -202,7 +202,7 @@ class JSH(object):
 
                 # Display valid completions
                 if completions:
-                    just = max(map(len, completions.keys()))
+                    just = max(list(map(len, list(completions.keys()))))
                     print('Possible completions:')
 
                     def comp_func(comp):
@@ -212,7 +212,7 @@ class JSH(object):
                             return '!' + comp
                         return comp
 
-                    for key in sorted([k for k in completions.keys() if k not in hidden_completions], key=comp_func):
+                    for key in sorted([k for k in list(completions.keys()) if k not in hidden_completions], key=comp_func):
                         print('  {0}   {1}'.format(key.ljust(just), completions[key]))
 
                 else:
